@@ -1,20 +1,6 @@
-const connection = require('../config/database')
-const { getAllusers, getUpdateUSer, handleUpdateUser, handeDeleteUser } = require('../sevices/CRUDservice')
+const connection = require('../config/ConfigDataBase')
+const { getAllusers, getUpdateUSer, handleUpdateUser, handeDeleteUser, CreateUser } = require('../sevices/CRUDservice')
 const getHomePage = async (req, res) => {
-
-    //process data
-    //call model
-    // let users = [];
-    // connection.query(
-    //     'select * from Users ',
-    //     function (err, results, fields) {
-    //         console.log(results); // results contains rows returned by server
-    //         console.log(fields); // fields contains extra meta data about results, if available
-    //         users = results;
-    //         res.send(JSON.stringify(users))
-    //     }
-    // );
-
 
     let results = await getAllusers();
     console.log("check result :", results)
@@ -25,24 +11,18 @@ const getVietz = (req, res) => {
     res.render('sample.ejs')
 }
 const PostUser = async (req, res) => {
-    // Using placeholders
-    email = req.body.email;
-    namee = req.body.Myname;
-    city = req.body.city;
-    // console.log("check :", email, ">>>", namee, ">>>", city)
-    // connection.query(
-    //     ` INSERT INTO Users(email,name,city)
-    //      VALUES(?,?,?)`,
-    //     [email, namee, city],
-    //     function (err, results) {
-    //         console.log(results);
-    //         res.send("add user succed")
-    //     }
-    // );
-    const [results, fields] = await connection.query(
-        ` INSERT INTO Users(email,name,city) VALUES(?,?,?)`, [email, namee, city],
-        res.send("add user succed")
-    );
+
+    try {
+
+        let data = await CreateUser(req.body)
+        return res.status(200).json(data)
+    } catch (e) {
+        console.log(e)
+        return res.status(200).json({
+            message: 'err form sv',
+            errCode: 1
+        })
+    }
 
 }
 const getCreate = (req, res) => {
@@ -74,7 +54,7 @@ const GetDeleteUser = async (req, res) => {
 }
 const postDeleteUser = async (req, res) => {
     const id = req.body.UserId
-    console.log("check cai id ne L", id)
+    console.log("check ", id)
     await handeDeleteUser(id)
     res.redirect('/')
 
